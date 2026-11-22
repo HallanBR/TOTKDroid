@@ -30,7 +30,8 @@ uint64_t vk_vamm_last_read_seq(void) { return atomic_load(&last_read_seq); }
 // 1024 MB alias's end at 2048: 2.6 GB copied every 2 s (upload ~2.5 GB). From 1280 the same 1 GB covers 1.28-2.30 GB,
 // both: copies 2742 -> 257 MB, the render thread's vertex time ~250 -> ~75 ms a 2 s window (POCO, Turnip).
 // LARECOMP_VK_ALIAS_START_MB=<n>: elsewhere.
-// Below ~11 GB of RAM (12 GB phones report ~11.2, 8 GB ones ~7.4): none. The placed heap already holds 2144 MB of GPU
+// Below 10 GB of RAM (12 GB phones report 10.8-11.2 - a POCO F7 Pro on HyperOS 11100 MB, under the 11 GB this was,
+// so its Sky Islands copied ~3.4 GB every 2 s; 8 GB ones ~7.4): none. The placed heap already holds 2144 MB of GPU
 // memory that Android can't swap; with the game's ~1.3 GB of textures and 704 MB of this, an 8 GB Adreno 618 with the
 // heap turned on by hand ran out (alias placements -2 for minutes, then vkEndCommandBuffer -2 and a crash: #58 #60).
 static uint64_t budget(void) {
@@ -41,9 +42,9 @@ static uint64_t budget(void) {
         extern bool vk_low_ram_auto(long *total_mb);
         long total_mb = 0;
         vk_low_ram_auto(&total_mb);
-        if (total_mb && total_mb < 11 * 1024) {
+        if (total_mb && total_mb < 10 * 1024) {
             static bool said;
-            if (!said) LOG("[vk-alias] off: %ld MB of RAM, under 11 GB (LARECOMP_VK_ALIAS_MB=<n>: on)\n", total_mb);
+            if (!said) LOG("[vk-alias] off: %ld MB of RAM, under 10 GB (LARECOMP_VK_ALIAS_MB=<n>: on)\n", total_mb);
             said = true;
             mb = 0;
         }
